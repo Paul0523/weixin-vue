@@ -1,8 +1,8 @@
 <template>
   <el-row class="tac" style="height: 100%; width: 1000px; margin: 0 auto;">
-    <el-col :span="5" style=" background: #13CE66; height: 100%; position:relative;">
+    <el-col :span="5" style=" background: #2E3238; height: 100%; position:relative; color: white;">
       <div style="height: 100px;">我的信息</div>
-      <el-menu style="position: absolute; top: 100px; bottom: 0px; overflow-y: scroll; width: 100%;" default-active="-1" class="el-menu-vertical-demo" @select="select">
+      <el-menu id="contacts" style="position: absolute; top: 100px; bottom: 0px; overflow-y: hidden; width: 100%; background: #2E3238;" default-active="-1" class="el-menu-vertical-demo" @select="select">
         <el-menu-item v-bind:index="index.toString()" v-for="(item, index) in items" v-bind:key="index">
           <el-badge v-bind:value="item.msgs.length" class="item" :max="99">
             <i class="el-icon-menu"/>{{item.remarkName? item.remarkName:item.nickName}}
@@ -10,8 +10,8 @@
         </el-menu-item>
       </el-menu>
     </el-col>
-    <el-col :span="19" style="height: 100%; position: relative;">
-      <div style="height: 30px; background: #F7BA2A; margin: 0 19px; padding: 10px 0; border-bottom: 1px solid #d6d6d6;">{{title}}</div>
+    <el-col :span="19" style="height: 100%; position: relative; background: #eeeeee;">
+      <div style="height: 30px; background: #EEEEEE; margin: 0 19px; padding: 10px 0; border-bottom: 1px solid #d6d6d6;">{{title}}</div>
       <div id="chatWin" style="position: absolute; bottom: 200px; top: 50px; background: #324057; width: 100%; overflow-y: scroll;">
         <chat-item-r v-bind:message="item" v-for="(item, index) in chatMsgs" v-bind:key="index"></chat-item-r>
       </div>
@@ -33,6 +33,17 @@
   .el-badge__content.is-fixed{
     top: 28px !important;
     right: -4px !important;
+  }
+  .el-menu-item:last-child {
+    margin-right: 0;
+    border-bottom: #000 1px solid;
+  }
+  .el-menu li {
+    list-style: none;
+    border-top: #000 1px solid;
+  }
+  #contacts:hover {
+    overflow-y: scroll !important;
   }
 </style>
 
