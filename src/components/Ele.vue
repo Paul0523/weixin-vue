@@ -17,7 +17,7 @@
       </div>
       <div style="bottom: 0px; height: 200px; background: #99A9BF; position: absolute; width: 100%;">
         <div style="width: 100%; height: 150px;">
-          <textarea style="width: 99%; height: 95%;" v-model="txAreaMsg" @keyup.enter.ctrl="send">
+          <textarea style="width: 100%; height: 100%; outline: none; border: none; resize: none;" v-model="txAreaMsg" @keyup.enter.ctrl="send">
 
           </textarea>
         </div>
