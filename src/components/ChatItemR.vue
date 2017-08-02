@@ -1,6 +1,6 @@
 <template>
   <div :class="message.type == 0 ? 'chatitem-r-wrap chatitem-wrap': 'chatitem-l-wrap chatitem-wrap'">
-    <div class="content" style="">{{message.content}}</div>
+    <div class="content" style="" v-html="message.content"></div>
   </div>
 </template>
 

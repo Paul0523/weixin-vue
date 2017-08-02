@@ -168,9 +168,16 @@
       notifyMsg(target, msg) {
         const h = this.$createElement;
         var that = this
+        var content = ""
+        if (msg.msgType == 3)
+            content = "图片消息"
+        else if (msg.msgType == 34)
+            content = "语音消息"
+        else
+            content = msg.content
         this.$notify({
           title: target.remarkName == ""? target.nickName:target.remarkName,
-          message: h('i', { style: 'color: teal'}, msg.content),
+          message: h('i', { style: 'color: teal'}, content),
           onClick : function () {
             that.readAndShowMsg(msg.fromUserName)
             that.filterContacts = ""
@@ -252,6 +259,15 @@
             response.data.forEach((value) => {
               if (!(value.msgType == 1 || value.msgType == 3 || value.msgType == 34))
                 return
+
+              if (value.msgType == 3) {
+                  value.content = '<img src="/back/getMediaFile?msgId=' + value.msgId + '&type=0"/>'
+              }
+
+              if (value.msgType == 34) {
+                value.content = '<audio src="/back/getMediaFile?msgId=' + value.msgId + '&type=1" controls="controls" >'
+              }
+
               var target = this.contactsMap[value.fromUserName]
               if (target) {
                 value.type = 0
