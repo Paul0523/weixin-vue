@@ -9,7 +9,7 @@ import 'element-ui/lib/theme-default/index.css'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 /* eslint-disable no-new */
-var vm = new Vue({
+window.vm = new Vue({
   el: '#app',
   router,
   template: '<App/>',

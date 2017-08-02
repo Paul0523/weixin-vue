@@ -4,7 +4,7 @@
       <div style="height: 100px;">我的信息</div>
       <div style="height: 50px;">搜索：<input type="text" v-model="filterContacts"/></div>
       <div class="wrapper" style="position: absolute; top: 150px; bottom: 0px; width: 100%;">
-        <el-menu id="contacts" style="width: 100%; height: 100%; background: #2E3238;" default-active="-1" class="el-menu-vertical-demo scrollbar-macosx">
+        <el-menu id="contacts" style="width: 100%; height: 100%; background: #2E3238;" :default-active="defaultActiveIndex" class="el-menu-vertical-demo scrollbar-macosx">
           <el-menu-item v-bind:index="index.toString()" v-for="(item, index) in items" v-bind:key="index" @click="clickItem(item.userName)">
             <el-badge v-bind:value="item.msgCount" class="item" :max="99">
               <i class="el-icon-menu"/>{{item.remarkName? item.remarkName:item.nickName}}
@@ -70,6 +70,7 @@
 
       },
       filterContacts() {
+        this.clearActiveContact()
         this.refreshContactsWithFiter()
       }
     },
@@ -80,6 +81,7 @@
         items : [],  //联系人列表
         title : "",  //聊天窗口顶栏
         activeContactId : "",
+        defaultActiveIndex : "-1",
         txAreaMsg : "",  //发送信息窗口
         filterContacts : ""  //过滤框
       }
@@ -108,6 +110,13 @@
       this.loadMessage();
     },
     methods: {
+      clearActiveContact() {
+        this.defaultActiveIndex = (-Math.random()) + ""
+        this.activeContactId = ""
+        this.title = ""
+        this.chatMsgs = []
+        this.txAreaMsg = ""
+      },
       //读取并且显示聊天记录
       readAndShowMsg(userName) {
         var target = this.contactsMap[userName]
@@ -124,7 +133,7 @@
       refreshContactsWithFiter() {
         var filterContacts = this.filterContacts;
         var items =  this.getContactsFromContactsMap().filter(function (item) {
-          return item.nickName.toLowerCase().indexOf(filterContacts.toLowerCase()) != -1
+          return item.remarkName.toLowerCase().indexOf(filterContacts.toLowerCase()) != -1 || item.nickName.toLowerCase().indexOf(filterContacts.toLowerCase()) != -1
         });
         this.refreshContacts(items)
       },
@@ -151,22 +160,49 @@
       //弹出通知框
       notifyMsg(target, msg) {
         const h = this.$createElement;
+        var that = this
         this.$notify({
           title: target.remarkName == ""? target.nickName:target.remarkName,
-          message: h('i', { style: 'color: teal'}, msg.content)
+          message: h('i', { style: 'color: teal'}, msg.content),
+          onClick : function () {
+            that.readAndShowMsg(msg.fromUserName)
+            that.filterContacts = ""
+            that.refreshContactsWithFiter()
+            that.items.forEach((value, index) => {
+                if (value.userName == msg.fromUserName) {
+                  that.defaultActiveIndex = index + ""
+                  that.activeContactId = value.userName
+                }
+            })
+            this.close()
+          }
         });
       },
       //刷新联系人列表
       refreshContacts(items) {
-        items.sort(function(a, b) {
-            if (a.lastModifyTime < b.lastModifyTime)
-              return 1;
-            else if (a.lastModifyTime > b.lastModifyTime)
-              return -1;
-            else
-              return 0
+        var timeSortedItems = []
+        var msgSortedItems = []
+        function timeSort(a, b) {
+          if (a.lastModifyTime < b.lastModifyTime)
+            return 1
+          else if (a.lastModifyTime > b.lastModifyTime)
+            return -1
+          else
+            return 0
+        }
+        items.forEach(function (item) {
+          if (item.msgCount > 0) {
+            msgSortedItems.push(item);
+          }else {
+            timeSortedItems.push(item)
+          }
         })
-        this.items = items
+        timeSortedItems.sort(timeSort)
+        msgSortedItems.sort(timeSort)
+        timeSortedItems.forEach(function (item) {
+          msgSortedItems.push(item)
+        })
+        this.items = msgSortedItems
       },
       //将contactsMap转化为list
       getContactsFromContactsMap() {
@@ -197,6 +233,7 @@
               }
               contact.readedMsgs.push(msg)
               this.chatMsgs.push(msg)
+              contact.lastModifyTime = new Date().Format("yyyy-MM-dd hh:mm:ss")
               this.txAreaMsg = ""
             })
       },
@@ -212,7 +249,6 @@
               if (target) {
                 value.type = 0
                 target.lastModifyTime = new Date().Format("yyyy-MM-dd hh:mm:ss")
-                console.log(target)
                 if (this.activeContactId == value.fromUserName) {
                   target.readedMsgs.push(value)
                   this.readAndShowMsg(value.fromUserName)
@@ -220,9 +256,10 @@
                   target.msgs.push(value)
                   this.notifyMsg(target, value)
                 }
+                this.refreshContactsWithFiter()
+                console.log("消息处理完毕")
               }
             })
-            this.refreshContactsWithFiter()
             setTimeout(this.loadMessage(), 0);
           })
       }
