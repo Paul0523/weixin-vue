@@ -1,32 +1,32 @@
 <template>
-  <el-row class="tac" style="height: 100%; width: 1000px; margin: 0 auto;">
-    <el-col :span="5" style=" background: #2E3238; height: 100%; position:relative; color: white;">
-      <div style="height: 100px;">我的信息</div>
-      <div style="height: 50px;">搜索：<input type="text" v-model="filterContacts"/></div>
-      <div class="wrapper" style="position: absolute; top: 150px; bottom: 0px; width: 100%;">
+  <el-row class="tac" style="height: 600px; width: 800px; margin: 50px auto;">
+    <el-col :span="6" style=" background: #2E3238; height: 100%; position:relative; color: white;">
+      <div style="height: 70px; line-height: 70px; text-align: left; padding-left: 20px;"><img :src="'/back/getContactIcon?userName=' + myAcount.userName" style="width: 40px; height: 40px; border-radius: 4px; vertical-align: middle;"/> <p style="margin: 0 0 0 10px; display: inline-block;">{{myAcount.nickName}}</p></div>
+      <div style="height: 40px; line-height: 40px;"><input type="text" style="border-radius: 4px; outline: none; padding: 0 10px; border: solid 1px #3a3a3a; font-size: 12px; color: #fff; height: 30px; line-height: 30px; background-color: #26292E;" placeholder="搜索" v-model="filterContacts"/></div>
+      <div class="wrapper" style="position: absolute; top: 120px; bottom: 0px; width: 100%;">
         <el-menu id="contacts" style="width: 100%; height: 100%; background: #2E3238;" :default-active="defaultActiveIndex" class="el-menu-vertical-demo scrollbar-macosx">
           <el-menu-item v-bind:index="index.toString()" v-for="(item, index) in items" v-bind:key="index" @click="clickItem(item.userName)">
-            <el-badge v-bind:value="item.msgCount" class="item" :max="99">
-              <i class="el-icon-menu"/>{{item.remarkName? item.remarkName:item.nickName}}
+            <el-badge v-bind:value="item.msgCount" class="item" style="overflow: hidden;" :max="99">
+              <img :src="'/back/getContactIcon?userName=' + item.userName" style="height: 30px; width: 30px; border-radius: 3px; vertical-align: middle;"/><p style="display: inline-block; margin: 0 0 0 10px;">{{item.remarkName? item.remarkName:item.nickName}}</p>
             </el-badge>
           </el-menu-item>
         </el-menu>
       </div>
     </el-col>
-    <el-col :span="19" style="height: 100%; position: relative; background: #eeeeee;">
+    <el-col :span="18" style="height: 100%; position: relative; background: #eeeeee;">
       <div style="height: 30px; background: #EEEEEE; margin: 0 19px; padding: 10px 0; border-bottom: 1px solid #d6d6d6;">{{title}}</div>
       <div class="wrapper" style="position: absolute; bottom: 200px; top: 50px; width: 100%;">
-        <div id="chatWin" style="width: 100%; height: 100%; background: #324057;" class="scrollbar-macosx">
+        <div id="chatWin" style="width: 100%; height: 100%;" class="scrollbar-macosx">
           <chat-item-r v-bind:message="item" v-for="(item, index) in chatMsgs" v-bind:key="index"></chat-item-r>
         </div>
       </div>
-      <div style="bottom: 0px; height: 200px; background: #99A9BF; position: absolute; width: 100%;">
-        <div style="width: 100%; height: 150px;">
-          <textarea style="width: 100%; height: 100%; outline: none; border: none; resize: none;" v-model="txAreaMsg" @keyup.enter.ctrl="send">
+      <div style="bottom: 0px; height: 200px; background: #EEEEEE; position: absolute; width: 100%;">
+        <div style="width: 100%; height: 150px; background: white;">
+          <textarea style="box-sizing: border-box; width: 100%; height: 100%; outline: none; border: none; resize: none; padding: 10px;" v-model="txAreaMsg" @keyup.enter.ctrl="send">
           </textarea>
         </div>
-        <div style="position: absolute; height: 50px; bottom: 0px; background: #13CE66; width: 100%; line-height: 50px; text-align: right;">
-          <el-button type="info" style="margin-right: 30px;" @click="send">发送</el-button>
+        <div style="position: absolute; height: 50px; bottom: 0px; width: 100%; line-height: 50px; text-align: right;">
+          <span style="display: inline-block; margin-right: 10px; color: #a4a4a4;">按下ctrl+enter发送</span><el-button type="info" style="margin-right: 30px;" @click="send">发送</el-button>
         </div>
       </div>
     </el-col>
@@ -45,6 +45,11 @@
   .el-menu li {
     list-style: none;
     border-top: #000 1px solid;
+  }
+
+  .el-badge {
+    text-align: left;
+    width: 100%;
   }
 
   .wrapper>div {
@@ -76,6 +81,7 @@
     },
     data : function () {
       return {
+        myAcount : {},
         contactsMap : {}, //载入的联系人
         chatMsgs : [],  //聊天窗口信息
         items : [],  //联系人列表
@@ -104,10 +110,11 @@
       }
       //初始化滚动条
       jQuery('.scrollbar-macosx').scrollbar();
+      this.loadMyAcount()
       //加载联系人信息
       this.loadContacts()
       //获取消息
-      this.loadMessage();
+      this.loadMessage()
     },
     methods: {
       clearActiveContact() {
@@ -261,6 +268,12 @@
               }
             })
             setTimeout(this.loadMessage(), 0);
+          })
+      },
+      loadMyAcount() {
+        axios.get('/back/getMyAcount')
+          .then(response => {
+              this.myAcount = response.data
           })
       }
     }
