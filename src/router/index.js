@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Hello from '@/components/Hello'
 import Ele from '@/components/Ele'
 import ChatWin from '@/components/ChatWin'
+import Drag from '@/components/Drag'
 
 Vue.use(Router)
 
@@ -22,6 +23,11 @@ export default new Router({
       path: '/chatWin',
       name: 'ChatWin',
       component: ChatWin
+    },
+    {
+      path: '/drag',
+      name: 'Drag',
+      component: Drag
     }
   ]
 })
